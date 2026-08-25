@@ -1,0 +1,17 @@
+diff --git a/cmake/ffmpeg/ffmpeg.cmake b/cmake/ffmpeg/ffmpeg.cmake
+index 7937413..646c401 100644
+--- a/cmake/ffmpeg/ffmpeg.cmake
++++ b/cmake/ffmpeg/ffmpeg.cmake
+@@ -129,6 +129,12 @@ elseif(UNIX)
+             --enable-encoder=h264_v4l2m2m
+             --enable-v4l2_m2m
+     )
++    if(${arch} STREQUAL "aarch64" OR ${arch} STREQUAL "arm64")
++        list(APPEND FFMPEG_EXTRA_CONFIGURE
++                --enable-nvmpi
++                --enable-encoder=h264_nvmpi,hevc_nvmpi
++        )
++    endif()
+ endif()
+ 
+ if(CMAKE_CROSSCOMPILING)

@@ -1,0 +1,60 @@
+diff --git a/src/video.cpp b/src/video.cpp
+index 00af66c3..06aea27a 100644
+--- a/src/video.cpp
++++ b/src/video.cpp
+@@ -887,6 +887,45 @@ namespace video {
+   };
+ #endif
+ 
++#if defined(__linux__) && defined(__aarch64__)
++  encoder_t jetson {
++    "jetson"sv,
++    std::make_unique<encoder_platform_formats_avcodec>(
++      AV_HWDEVICE_TYPE_NONE,
++      AV_HWDEVICE_TYPE_NONE,
++      AV_PIX_FMT_NONE,
++      AV_PIX_FMT_YUV420P,
++      AV_PIX_FMT_NONE,
++      AV_PIX_FMT_NONE,
++      AV_PIX_FMT_NONE,
++      nullptr
++    ),
++    {},  // AV1 is not supported by nvmpi
++    {
++      {
++        {"rc"s, 0},
++        {"preset"s, 1},
++        {"max_perf"s, 1},
++      },
++      {}, {}, {}, {}, {},
++      "hevc_nvmpi"s,
++    },
++    {
++      {
++        {"rc"s, 0},
++        {"preset"s, 1},
++        {"max_perf"s, 1},
++        {"poc_type"s, 2},
++        {"profile"s, AV_PROFILE_H264_HIGH},
++        {"cabac"s, 1},
++      },
++      {}, {}, {}, {}, {},
++      "h264_nvmpi"s,
++    },
++    PARALLEL_ENCODING | SINGLE_SLICE_ONLY
++  };
++#endif
++
+   encoder_t software {
+     "software"sv,
+     std::make_unique<encoder_platform_formats_avcodec>(
+@@ -1156,6 +1195,9 @@ namespace video {
+ #endif
+ 
+   static const std::vector<encoder_t *> encoders {
++#if defined(__linux__) && defined(__aarch64__)
++    &jetson,
++#endif
+ #ifndef __APPLE__
+     &nvenc,
+ #endif

@@ -1,0 +1,29 @@
+diff --git a/libavcodec/dynlink_nvmpi.h b/libavcodec/dynlink_nvmpi.h
+--- a/libavcodec/dynlink_nvmpi.h
++++ b/libavcodec/dynlink_nvmpi.h
+@@ -286,12 +286,6 @@ static int nvmpi_dynlink_load(void)
+     NVMPI_LOAD_SYM(nvmpi_decoder_flush_dl,           nvmpi_decoder_flush);
+     NVMPI_LOAD_SYM(nvmpi_decoder_close_dl,           nvmpi_decoder_close);
+ 
+-    /* JPEG decoder symbols */
+-    NVMPI_LOAD_SYM(nvmpi_create_jpeg_decoder_dl,     nvmpi_create_jpeg_decoder);
+-    NVMPI_LOAD_SYM(nvmpi_jpeg_decoder_put_packet_dl, nvmpi_jpeg_decoder_put_packet);
+-    NVMPI_LOAD_SYM(nvmpi_jpeg_decoder_get_frame_dl,  nvmpi_jpeg_decoder_get_frame);
+-    NVMPI_LOAD_SYM(nvmpi_jpeg_decoder_close_dl,      nvmpi_jpeg_decoder_close);
+-
+     /* Encoder symbols */
+     NVMPI_LOAD_SYM(nvmpi_create_encoder_dl,          nvmpi_create_encoder);
+     NVMPI_LOAD_SYM(nvmpi_encoder_put_frame_dl,       nvmpi_encoder_put_frame);
+@@ -302,12 +296,6 @@ static int nvmpi_dynlink_load(void)
+     NVMPI_LOAD_SYM(nvmpi_encoder_flush_dl,           nvmpi_encoder_flush);
+     NVMPI_LOAD_SYM(nvmpi_encoder_close_dl,           nvmpi_encoder_close);
+ 
+-    /* JPEG encoder symbols */
+-    NVMPI_LOAD_SYM(nvmpi_create_jpeg_encoder_dl,     nvmpi_create_jpeg_encoder);
+-    NVMPI_LOAD_SYM(nvmpi_jpeg_encoder_put_frame_dl,  nvmpi_jpeg_encoder_put_frame);
+-    NVMPI_LOAD_SYM(nvmpi_jpeg_encoder_get_packet_dl, nvmpi_jpeg_encoder_get_packet);
+-    NVMPI_LOAD_SYM(nvmpi_jpeg_encoder_close_dl,      nvmpi_jpeg_encoder_close);
+-
+     /* DMA-BUF fd passthrough symbols (zero-copy, issue #60) */
+     NVMPI_LOAD_SYM(nvmpi_decoder_get_frame_fd_dl,   nvmpi_decoder_get_frame_fd);
+     NVMPI_LOAD_SYM(nvmpi_encoder_put_frame_fd_dl,   nvmpi_encoder_put_frame_fd);
