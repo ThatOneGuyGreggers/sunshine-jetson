@@ -39,6 +39,10 @@ if [[ ${probe_status} -ne 0 && ${probe_status} -ne 124 ]]; then
   echo "Sunshine probe failed with status ${probe_status}." >&2
   exit "${probe_status}"
 fi
+if ! grep -Fq "Sunshine version: 2026.516.143833 commit: 14ffa6fdaa53f7b51512be2b3d24f3939695403c" "${log_file}"; then
+  echo "Built Sunshine does not report the tested upstream release." >&2
+  exit 1
+fi
 if ! grep -Fq "Found H.264 encoder: h264_nvmpi [jetson]" "${log_file}"; then
   echo "H.264 Jetson encoder was not detected." >&2
   exit 1

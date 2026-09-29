@@ -76,6 +76,13 @@ cd sunshine-jetson
 2. Sunshine's static FFmpeg dependency with `h264_nvmpi` and `hevc_nvmpi`.
 3. The exact tested Sunshine release with the `jetson` encoder backend.
 
+The build explicitly embeds the upstream release version and commit. Without
+that metadata, upstream's CMake version detection can pick up this wrapper
+repository's revision and report the wrong version in Sunshine's admin page.
+Sunshine's admin page checks GitHub for newer releases independently; this
+repository is pinned to `v2026.516.143833`, not automatically updated to the
+newest upstream release.
+
 The default workspace is `./build`. Set `WORK_DIR` and `JOBS` to override it:
 
 ```bash
@@ -112,6 +119,46 @@ Found HEVC encoder: hevc_nvmpi [jetson]
 ```
 
 The hardware driver also prints `NvVideo: NVENC` while opening each encoder.
+
+## H.264 instead of HEVC (H.265)
+
+The stock Sunshine package reports the same `2026.516.143833` version but does
+not include the Jetson encoder patch. A version number alone does not confirm
+that Jetson HEVC is available. Run `./scripts/probe.sh` and check for both
+`Found HEVC encoder: hevc_nvmpi [jetson]` and the expected release version.
+After installation, restart the user service and check its startup log for the
+same encoder lines. HEVC Main is 8-bit only; do not request HEVC Main10/HDR.
+
+In Sunshine's Configuration > Audio/Video, leave HEVC Support enabled (the
+default) and use `jetson` or automatic for the encoder. In Moonlight, enable
+HEVC/H.265 or set the video codec to HEVC, then start a new stream. The client
+must support HEVC decoding; Moonlight's statistics overlay shows the codec
+*actually negotiated*. An H.264-only client or a client configured to prefer
+H.264 will continue to use H.264 even when the host has HEVC available.
+
+## Intermittent “slow connection” warnings
+
+Moonlight raises this warning based on stream delivery (latency, jitter or
+lost packets), not solely on the codec. If the host's uplink is also Wi-Fi,
+find its interface with `iw dev` and check its power saving mode with
+`iw dev <interface> get power_save`. Good signal or a high negotiated Wi-Fi link
+rate does not rule out short bursts of contention or retransmissions. For a
+useful comparison, connect the Jetson by Ethernet and stream from the same
+client, or test with the client close to the access point. If Wi-Fi must be
+used, try disabling host Wi-Fi power saving temporarily with
+`sudo iw dev <interface> set power_save off` and compare sessions. To retain
+that setting for a NetworkManager connection, use
+`sudo nmcli connection modify '<connection name>' 802-11-wireless.powersave 2`
+followed by a reconnection (which interrupts active streams). Check
+`iw dev <interface> link` for signal and transmit rate.
+
+Enable Moonlight's statistics overlay and compare *network dropped frames*,
+average/maximum network latency and host processing time when the warning
+occurs. If network drops rise, test a lower Moonlight bitrate and resolution,
+and ensure Moonlight is connecting to the Jetson's LAN address rather than a
+VPN/relay. If host processing time rises without network drops, inspect
+Sunshine's log and encoder load instead. Changing to HEVC may lower bandwidth
+at the same quality, but does not fix Wi-Fi loss or jitter.
 
 ## Rollback
 

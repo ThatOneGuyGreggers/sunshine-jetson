@@ -103,6 +103,9 @@ cmake --build "${deps_build}" --target build-deps --parallel "${JOBS}"
 cmake --install "${deps_build}"
 
 sunshine_build="${WORK_DIR}/sunshine-build"
+# Upstream's version script runs git in CMake's working directory. Without
+# explicit metadata it can pick up this wrapper repository's version instead.
+BRANCH=master BUILD_VERSION="${SUNSHINE_TAG}" COMMIT="${SUNSHINE_COMMIT}" \
 cmake -S "${sunshine_src}" -B "${sunshine_build}" -G Ninja \
   -DCMAKE_BUILD_TYPE=Release \
   -DCMAKE_INSTALL_PREFIX=/usr \
