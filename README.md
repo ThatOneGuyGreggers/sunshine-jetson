@@ -160,6 +160,20 @@ VPN/relay. If host processing time rises without network drops, inspect
 Sunshine's log and encoder load instead. Changing to HEVC may lower bandwidth
 at the same quality, but does not fix Wi-Fi loss or jitter.
 
+If Moonlight requests an unusually high bitrate (for example, 120 Mbps on
+1080p over Wi-Fi), reduce the bitrate in Moonlight or set
+`max_bitrate = 30000` in Sunshine's config to cap video encoding at 30 Mbps.
+Restart Sunshine and start a new stream to apply the setting.
+
+## HEVC stuck near 2 FPS
+
+Older revisions of this patch set blocked up to 500 ms waiting for an extra
+HEVC packet after *each* frame. The FFmpeg patch now returns promptly when no
+packet is ready, allowing Sunshine's capture loop to maintain its target FPS.
+Rebuild and reinstall from this repository, then start a new Moonlight stream
+and verify its incoming FPS. An encoder availability probe alone cannot detect
+this runtime throughput issue.
+
 ## Rollback
 
 Restore the preserved binary and restart Sunshine:

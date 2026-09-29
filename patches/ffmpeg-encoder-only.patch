@@ -27,3 +27,22 @@ diff --git a/libavcodec/dynlink_nvmpi.h b/libavcodec/dynlink_nvmpi.h
      /* DMA-BUF fd passthrough symbols (zero-copy, issue #60) */
      NVMPI_LOAD_SYM(nvmpi_decoder_get_frame_fd_dl,   nvmpi_decoder_get_frame_fd);
      NVMPI_LOAD_SYM(nvmpi_encoder_put_frame_fd_dl,   nvmpi_encoder_put_frame_fd);
+diff --git a/libavcodec/nvmpi_enc_runtime.c b/libavcodec/nvmpi_enc_runtime.c
+--- a/libavcodec/nvmpi_enc_runtime.c
++++ b/libavcodec/nvmpi_enc_runtime.c
+@@ -401,9 +401,11 @@ static int ff_nvmpi_receive_packet(AVCodecContext *avctx, AVPacket *pkt)
+ 	AVPacket *aPkt;
+ 	int res;
+ 
+-	/* During flushing, use blocking get_packet to avoid CPU spin while
+-	 * waiting for the DQ thread to deliver final encoded packets. */
+-	res = nvmpi_encoder_get_packet(nvmpi_context->ctx, &nPkt,
+-		(avctx->flags & AV_CODEC_FLAG_LOW_DELAY) || nvmpi_context->encoder_flushing);
++	/* Sunshine drains receive_packet until EAGAIN after every video frame.
++	 * A blocking LOW_DELAY read waits 500ms for a second packet on each frame,
++	 * throttling the entire capture loop to roughly 2 FPS. Only wait while
++	 * flushing, when no more frames can arrive to wake the output thread. */
++	res = nvmpi_encoder_get_packet(nvmpi_context->ctx, &nPkt,
++		nvmpi_context->encoder_flushing);
+ 	if(res<0)
+ 	{
